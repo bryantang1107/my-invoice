@@ -1,31 +1,16 @@
 import type { Receipt } from '@/types/receipt';
-import {
-  DUMMY_TAX_RELIEF_SUMMARY,
-  TAX_RELIEF_CATEGORIES,
-} from '@/types/taxRelief';
 import { storage } from '@/utils/storage';
+import { router } from 'expo-router';
 import { Trash } from 'iconsax-react-nativejs';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, FlatList, Image, Pressable, StyleSheet } from 'react-native';
 import Toast from 'react-native-toast-message';
-import { Progress, Spinner, Text, XStack, YStack } from 'tamagui';
+import { Button, Spinner, Text, XStack, YStack } from 'tamagui';
 
-export default function HomeScreen() {
+export default function ReceiptsScreen() {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
-  const taxReliefDisplayList = useMemo(() => {
-    return DUMMY_TAX_RELIEF_SUMMARY.map((summary) => {
-      const category = TAX_RELIEF_CATEGORIES.find(
-        (c) => c.id === summary.categoryId,
-      );
-      return {
-        ...summary,
-        label: category?.label ?? summary.categoryId,
-      };
-    });
-  }, []);
 
   const loadReceipts = async () => {
     try {
@@ -91,8 +76,45 @@ export default function HomeScreen() {
     );
   }
 
+  if (receipts.length === 0) {
+    return (
+      <YStack f={1} jc="center" ai="center" gap="$4" px="$6" bg="$background">
+        <Text fontSize={24} fontWeight="600" textAlign="center">
+          No Receipts Yet
+        </Text>
+        <Text fontSize={14} color="$gray10" textAlign="center">
+          Tap the scan button to capture your first receipt
+        </Text>
+        <Button
+          size="$4"
+          bg="#0a7ea4"
+          pressStyle={{ opacity: 0.8 }}
+          onPress={() => router.push('/scanner')}
+        >
+          <Text color="white">Scan Receipt</Text>
+        </Button>
+      </YStack>
+    );
+  }
+
   return (
-    <YStack f={1}>
+    <YStack f={1} bg="$background">
+      <XStack
+        jc="space-between"
+        ai="center"
+        px="$4"
+        pt="$4"
+        pb="$2"
+        bg="$background"
+      >
+        <Text fontSize={24} fontWeight="600">
+          Receipts
+        </Text>
+        <Text fontSize={14} color="$gray10">
+          {receipts.length} {receipts.length === 1 ? 'receipt' : 'receipts'}
+        </Text>
+      </XStack>
+
       <FlatList
         data={receipts}
         keyExtractor={(item) => item.uri}
@@ -100,37 +122,6 @@ export default function HomeScreen() {
         contentContainerStyle={styles.listContainer}
         onRefresh={handleRefresh}
         refreshing={refreshing}
-        ListHeaderComponent={
-          <>
-            <YStack px="$4" pt="$4" pb="$2" gap="$3" bg="$background">
-              <Text fontSize={20} fontWeight="600">
-                Tax relief (YA 2025)
-              </Text>
-              {taxReliefDisplayList.map((item) => {
-                const value = Math.min(
-                  100,
-                  item.limitRm > 0 ? (item.claimedRm / item.limitRm) * 100 : 0,
-                );
-                return (
-                  <YStack key={item.categoryId} gap="$1">
-                    <XStack jc="space-between" ai="center">
-                      <Text fontSize={14} fontWeight="500">
-                        {item.label}
-                      </Text>
-                      <Text fontSize={12} color="$gray10">
-                        RM {item.claimedRm.toLocaleString()} / RM{' '}
-                        {item.limitRm.toLocaleString()}
-                      </Text>
-                    </XStack>
-                    <Progress value={value} size="$2">
-                      <Progress.Indicator backgroundColor="#0a7ea4" />
-                    </Progress>
-                  </YStack>
-                );
-              })}
-            </YStack>
-          </>
-        }
         renderItem={({ item }) => (
           <Pressable
             style={styles.receiptCard}

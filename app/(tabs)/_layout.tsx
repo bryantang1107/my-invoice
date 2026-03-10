@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Home, Scanner, User } from 'iconsax-react-nativejs';
+import { Home, Receipt1, Scanner } from 'iconsax-react-nativejs';
 import React from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { Text, YStack } from 'tamagui';
@@ -60,9 +60,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="receipt"
         options={{
-          title: 'Profile',
+          title: 'Receipts',
           tabBarIcon: ({ color, focused }) => (
             <YStack jc="center" ai="center" gap={4}>
               <Text
@@ -70,9 +70,9 @@ export default function TabLayout() {
                 fontWeight={focused ? '600' : '400'}
                 color={color}
               >
-                Profile
+                Receipts
               </Text>
-              <User size={26} color={color} />
+              <Receipt1 size={26} color={color} />
             </YStack>
           ),
         }}

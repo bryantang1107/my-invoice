@@ -1,6 +1,7 @@
 import { tamaguiConfig } from '@/tamagui.config';
 import { Stack } from 'expo-router';
 import 'react-native-reanimated';
+import Toast from 'react-native-toast-message';
 import { TamaguiProvider } from 'tamagui';
 
 export const unstable_settings = {
@@ -13,6 +14,7 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
+      <Toast />
     </TamaguiProvider>
   );
 }

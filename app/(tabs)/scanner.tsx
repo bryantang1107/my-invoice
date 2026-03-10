@@ -2,7 +2,8 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { router } from 'expo-router';
 import { Camera, Flash, Gallery } from 'iconsax-react-nativejs';
 import { useRef, useState } from 'react';
-import { Alert, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { Button, Spinner, Text, XStack, YStack } from 'tamagui';
 import { storage } from '@/utils/storage';
 
@@ -31,10 +32,12 @@ export default function ScannerScreen() {
             const result = await requestPermission();
             console.log('Permission result:', result);
             if (!result.granted) {
-              Alert.alert(
-                'Permission Denied',
-                'Camera access is required to scan receipts. Please enable it in your device settings.',
-              );
+              Toast.show({
+                type: 'error',
+                text1: 'Permission Denied',
+                text2:
+                  'Camera access is required. Please enable it in your device settings.',
+              });
             }
           }}
         >
@@ -57,7 +60,11 @@ export default function ScannerScreen() {
       });
 
       if (!photo?.uri) {
-        Alert.alert('Error', 'Failed to capture image');
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'Failed to capture image',
+        });
         return;
       }
 
@@ -68,30 +75,27 @@ export default function ScannerScreen() {
         const receipt = await storage.saveReceipt(photo.uri);
         console.log('Receipt saved:', receipt);
 
-        Alert.alert(
-          'Success',
-          'Receipt saved successfully!',
-          [
-            {
-              text: 'Take Another',
-              style: 'cancel',
-            },
-            {
-              text: 'View Gallery',
-              onPress: () => {
-                router.push('/');
-              },
-            },
-          ],
-          { cancelable: false }
-        );
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: 'Receipt saved successfully!',
+          onPress: () => router.push('/'),
+        });
       } catch (fileError) {
         console.error('File operation error:', fileError);
-        Alert.alert('Error', `Failed to save file: ${fileError}`);
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: `Failed to save file: ${fileError}`,
+        });
       }
     } catch (error) {
       console.error('Error capturing photo:', error);
-      Alert.alert('Error', 'Failed to save photo. Please try again.');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to save photo. Please try again.',
+      });
     } finally {
       setCapturing(false);
     }
